@@ -1,0 +1,87 @@
+{
+  "$schema": "https://www.krakend.io/schema/krakend.json",
+  "version": 3,
+  "name": "KrakenD - API Gateway",
+  "extra_config": {
+    "telemetry/opentelemetry": {
+      "trace_sample_rate": 0.25,
+      "metric_reporting_period": 10,
+      "exporters": {
+        "prometheus": [
+          {
+            "name": "prometheus_exporter",
+            "port": 9090
+          }
+        ]
+      },
+      "layers": {
+        "global": {
+          "disable_metrics": false,
+          "disable_traces": false,
+          "disable_propagation": false
+        },
+        "proxy": {
+          "disable_metrics": false,
+          "disable_traces": false
+        },
+        "backend": {
+          "metrics": {
+            "disable_stage": false,
+            "round_trip": false,
+            "read_payload": false,
+            "detailed_connection": false,
+            "static_attributes": []
+          },
+          "traces": {
+            "disable_stage": false,
+            "round_trip": false,
+            "read_payload": false,
+            "detailed_connection": false,
+            "static_attributes": []
+          }
+        }
+      }
+    },
+    "router": {
+      "disable_gzip": false
+    },
+    "qos/ratelimit/service": {
+      "max_rate": 5000,
+      "every": "1h",
+      "client_max_rate": 0,
+      "capacity": 10000,
+      "client_capacity": 10
+    }
+  },
+  "timeout": "3000ms",
+  "cache_ttl": "300s",
+  "output_encoding": "json",
+  "endpoints": [
+    {
+      "endpoint": "/v1/keycloak_protected",
+      "method": "GET",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/__health",
+          "encoding": "json",
+          "sd": "static",
+          "method": "GET",
+          "host": [
+            "http://localhost:8081"
+          ],
+          "disable_host_sanitize": false
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://keycloak:8080/realms/master/protocol/openid-connect/certs",
+          "disable_jwk_security": true
+        }
+      }
+    }
+  ],
+  "debug_endpoint": true,
+  "echo_endpoint": true
+}

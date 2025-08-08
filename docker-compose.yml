@@ -1,0 +1,18 @@
+services:
+  keycloak:
+    image: keycloak/keycloak:26.3
+    ports:
+      - "8080:8080"
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    command:
+      - start-dev
+  krakend:
+    image: krakend:2.10
+    ports:
+      - "8081:8080"
+    expose:
+      - "8081"
+    volumes:
+      - ./config/krakend:/etc/krakend
