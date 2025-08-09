@@ -17,8 +17,9 @@ export const authConfig = {
       }
       return true;
     },
-    async jwt({ token, account, user }) {
+    async jwt({ token, account }) {
       if (account) {
+        token.refreshToken = account.refresh_token; 
         token.accessToken = account.access_token;
         token.idToken = account.id_token;
       }
@@ -26,6 +27,7 @@ export const authConfig = {
     },
 
     async session({ session, token }) {
+      session.refreshToken = token.refreshToken as string | undefined;
       session.accessToken = token.accessToken as string | undefined;
       session.idToken = token.idToken as string | undefined;
       return session;
