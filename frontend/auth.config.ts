@@ -2,6 +2,10 @@ import type { NextAuthConfig } from 'next-auth';
 import Keycloak from "next-auth/providers/keycloak"
 
 export const authConfig = {
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,
+  },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
@@ -12,6 +16,19 @@ export const authConfig = {
         return Response.redirect(new URL('/', nextUrl));
       }
       return true;
+    },
+    async jwt({ token, account, user }) {
+      if (account) {
+        token.accessToken = account.access_token;
+        token.idToken = account.id_token;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      session.accessToken = token.accessToken as string | undefined;
+      session.idToken = token.idToken as string | undefined;
+      return session;
     },
   },
   providers: [
