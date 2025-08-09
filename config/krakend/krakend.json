@@ -51,6 +51,32 @@
       "client_max_rate": 0,
       "capacity": 10000,
       "client_capacity": 10
+    },
+    "security/cors": {
+      "allow_origins": [
+        "*"
+      ],
+      "allow_headers": [
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "Origin"
+      ],
+      "expose_headers": [
+        "Content-Length",
+        "Content-Type"
+      ],
+      "allow_credentials": true,
+      "max_age": "12h",
+      "allow_methods": [
+        "GET",
+        "HEAD",
+        "POST",
+        "PUT",
+        "DELETE",
+        "OPTIONS",
+        "PATCH"
+      ]
     }
   },
   "timeout": "3000ms",
@@ -59,18 +85,12 @@
   "endpoints": [
     {
       "endpoint": "/v1/keycloak_protected",
-      "method": "GET",
-      "output_encoding": "json",
       "backend": [
         {
           "url_pattern": "/__health",
-          "encoding": "json",
-          "sd": "static",
-          "method": "GET",
           "host": [
-            "http://localhost:8081"
-          ],
-          "disable_host_sanitize": false
+            "http://localhost:8080"
+          ]
         }
       ],
       "extra_config": {
