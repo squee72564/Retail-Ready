@@ -1,15 +1,16 @@
-"use client";
 import { Button } from "@/components/ui/button";
-import { signIn } from "next-auth/react";
+import { startKeycloakSession } from "@/app/dashboard/server-actions";
 
 export default function LoginButton() {
   return (
-    <Button
-      variant={"default"}
-      className={"w-full max-w-md mt-4"}
-      onClick={() => signIn("keycloak", { callbackUrl: "/dashboard" })}
-    >
-      Merchant Sign In
-    </Button>
+    <form action={startKeycloakSession}>
+      <Button
+        type="submit"
+        variant={"default"}
+        className={"w-full max-w-md mt-4"}
+      >
+        Merchant Sign In
+      </Button>
+    </form>
   );
 }
