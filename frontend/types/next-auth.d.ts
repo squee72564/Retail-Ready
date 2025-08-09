@@ -5,6 +5,8 @@ declare module "next-auth" {
     refreshToken?: string;
     accessToken?: string;
     idToken?: string;
+    realmRoles: string[];
+    resourceRoles: Record<string, { roles: string[] }>;
   }
 }
 

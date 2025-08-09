@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from 'next-auth';
 import Keycloak from "next-auth/providers/keycloak"
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
 export const authConfig = {
   session: {
@@ -17,8 +18,14 @@ export const authConfig = {
       }
       return true;
     },
-    async jwt({ token, account }) {
-      if (account) {
+    async jwt({ token, account, user}) {
+      if (account && user) {
+        const decoded = jwtDecode(account.access_token || "") as JwtPayload & {
+          realm_access?: { roles: string[] };
+          resource_access?: Record<string, { roles: string[] }>;
+        };
+        token.realmRoles = decoded.realm_access?.roles || [];
+        token.resourceRoles = decoded.resource_access || {};
         token.refreshToken = account.refresh_token; 
         token.accessToken = account.access_token;
         token.idToken = account.id_token;
@@ -27,6 +34,8 @@ export const authConfig = {
     },
 
     async session({ session, token }) {
+      session.realmRoles = token.realmRoles as string[];
+      session.resourceRoles = token.resourceRoles as Record<string, { roles: string[] }>;
       session.refreshToken = token.refreshToken as string | undefined;
       session.accessToken = token.accessToken as string | undefined;
       session.idToken = token.idToken as string | undefined;
