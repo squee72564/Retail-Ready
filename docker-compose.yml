@@ -8,6 +8,8 @@ services:
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
     command:
       - start-dev
+    volumes:
+      - keycloak_data:/opt/keycloak/data
   krakend:
     image: krakend:2.10
     ports:
@@ -35,3 +37,8 @@ services:
       - "./config/grafana/datasources/all.yml:/etc/grafana/provisioning/datasources/all.yml"
       - "./config/grafana/dashboards/all.yml:/etc/grafana/provisioning/dashboards/all.yml"
       - "./config/grafana/krakend:/var/lib/grafana/dashboards/krakend"
+      - "grafana_data:/var/lib/grafana"
+
+volumes:
+  keycloak_data:
+  grafana_data:
