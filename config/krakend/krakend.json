@@ -4,43 +4,18 @@
   "name": "KrakenD - API Gateway",
   "extra_config": {
     "telemetry/opentelemetry": {
-      "trace_sample_rate": 0.25,
-      "metric_reporting_period": 10,
+      "service_name": "krakend_prometheus_service",
+      "metric_reporting_period": 1,
       "exporters": {
         "prometheus": [
           {
-            "name": "prometheus_exporter",
-            "port": 9090
+            "name": "local_prometheus",
+            "port": 9090,
+            "process_metrics": true,
+            "go_metrics": true
           }
         ]
-      },
-      "layers": {
-        "global": {
-          "disable_metrics": false,
-          "disable_traces": false,
-          "disable_propagation": false
-        },
-        "proxy": {
-          "disable_metrics": false,
-          "disable_traces": false
-        },
-        "backend": {
-          "metrics": {
-            "disable_stage": false,
-            "round_trip": false,
-            "read_payload": false,
-            "detailed_connection": false,
-            "static_attributes": []
-          },
-          "traces": {
-            "disable_stage": false,
-            "round_trip": false,
-            "read_payload": false,
-            "detailed_connection": false,
-            "static_attributes": []
-          }
-        }
-      }
+      } 
     },
     "router": {
       "disable_gzip": false
