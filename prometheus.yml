@@ -1,7 +1,5 @@
 global:
   scrape_interval: 15s
-  external_labels:
-    monitor: krakend_monitor
 
 scrape_configs:
   - job_name: krakend_scrapper
@@ -12,3 +10,14 @@ scrape_configs:
           - "krakend:9090"
         labels:
           app: krakend
+          conatiner: krakend
+
+  - job_name: keycloak_scrapper
+    scrape_interval: 5s
+    metrics_path: "/metrics"
+    static_configs:
+      - targets:
+          - "keycloak:9000"
+        labels:
+          app: keycloak
+          conatiner: keycloak
