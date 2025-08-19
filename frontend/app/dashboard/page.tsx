@@ -1,16 +1,10 @@
-import { auth } from "@/auth";
 import LogoutButton from "@/components/logout-button";
 import HealthCheck from "./health-check";
 import GoTest from "./go-test";
-import { redirect } from "next/navigation";
+import { cachedAuth } from "@/lib/cachedAuth";
 
 export default async function Dashboard() {
-    const session = await auth();
-
-    // If the session is not available or has an error, redirect to the homepage
-    if (!session || !session.user || session.error === "RefreshAccessTokenError") {
-      redirect("/");
-    }
+    const session = await cachedAuth();
 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen w-full m-10 gap-4">
