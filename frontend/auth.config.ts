@@ -11,11 +11,15 @@ export const authConfig = {
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
-      console.log("Checking authorization for request:", nextUrl.pathname, new Date().toISOString());
-      const session = auth;
+      console.log("Authorized callback for request:", nextUrl.pathname, new Date().toISOString());
 
-      // If the user is not logged in, redirect to the login page
-      if (!session || !session.user || !session.accessToken || session.error === 'RefreshAccessTokenError') {
+      if (nextUrl.pathname === '/') {
+        return true;
+      }
+
+      // If no session or user, or if the session has an error, redirect to homepage
+      if (!auth || !auth.user || !auth.accessToken || auth.error === 'RefreshAccessTokenError') {
+        console.log('- No valid session or user, redirecting to homepage');
         return Response.redirect(new URL('/', nextUrl));
       }
       
@@ -26,7 +30,7 @@ export const authConfig = {
 
       // If this is the initial sign in, store the tokens
       if (account && user) {
-        //console.log('Initial sign in, storing tokens');
+        console.log('- Initial sign in, storing tokens');
         const decoded = jwtDecode(account.access_token || "") as JwtPayload & {
           realm_access?: { roles: string[] };
           resource_access?: Record<string, { roles: string[] }>;
@@ -59,17 +63,18 @@ export const authConfig = {
       // If there's an error and tokens are cleared, the session will be invalid
       // but we still return a token object (just without valid tokens)
       if (token.error && !token.accessToken) {
-        //console.log('Token has error and no access token, maintaining error state');
+        console.log('- Token has error and no access token, maintaining error state');
         return token;
       }
 
       // Return previous token if the access token has not expired yet
       // Add some buffer time (30 seconds) to refresh before actual expiration
       if (Date.now() < ((token.expiresAt as number))) {
+        console.log('- Access token still valid, returning existing token');
         return token;
       }
 
-      //console.log('Access token expired, attempting refresh...');
+      console.log('- Access token expired, attempting refresh...');
       return refreshAccessToken(token);
     },
 
