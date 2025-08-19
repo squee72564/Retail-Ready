@@ -2,12 +2,10 @@ import { JWT } from '@auth/core/jwt';
 import { jwtDecode, JwtPayload } from "jwt-decode";
 
 export default async function refreshAccessToken(token: JWT) {
-  try {
-    console.log('Attempting to refresh token...');
-    
+  try {    
     // Check if refresh token is expired
     if (token.refreshTokenExpiresAt && (Date.now() >= (token.refreshTokenExpiresAt as number))) {
-      console.log('Refresh token has expired, clearing tokens');
+      console.log('- Refresh token has expired, clearing tokens');
       // Return a token that will cause re-authentication
       return {
         ...token,
@@ -46,7 +44,7 @@ export default async function refreshAccessToken(token: JWT) {
       };
     }
 
-    console.log('Token refreshed successfully');
+    console.log('- Token refreshed successfully');
 
     // Decode the new access token
     const decoded = jwtDecode(refreshedTokens.access_token) as JwtPayload & {
