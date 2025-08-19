@@ -27,6 +27,7 @@ services:
       - krakend
     volumes:
       - keycloak_data:/opt/keycloak/data
+
   krakend:
     image: krakend:2.10
     ports:
@@ -39,12 +40,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
   prometheus:
     image: prom/prometheus:latest
     ports:
       - "9090:9090"
     volumes:
       - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -59,6 +62,20 @@ services:
       - "./config/grafana/krakend:/var/lib/grafana/dashboards/krakend"
       - "./config/grafana/keycloak:/var/lib/grafana/dashboards/keycloak"
       - "grafana_data:/var/lib/grafana"
+
+  permify:
+    image: ghcr.io/permify/permify
+    ports:
+      - "3478:3478"
+      - "3476:3476"
+    volumes:
+      - "./config/permify/config.yaml:/config"
+
+  go-microservice:
+    build:
+      context: ./services/go-microservice
+    ports:
+      - "8082:8080"
 
 volumes:
   keycloak_data:
