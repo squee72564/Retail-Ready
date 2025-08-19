@@ -1,10 +1,11 @@
 import LogoutButton from "@/components/logout-button";
 import HealthCheck from "./health-check";
 import GoTest from "./go-test";
-import { cachedAuth } from "@/lib/cachedAuth";
+import { auth } from "@/auth";
 
 export default async function Dashboard() {
-    const session = await cachedAuth();
+    console.log("Rendering Dashboard page at:", new Date().toISOString());
+    const session = await auth();
 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen w-full m-10 gap-4">
