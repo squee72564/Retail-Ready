@@ -1,24 +1,28 @@
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
+import LogoutButton from "@/components/logout-button";
+import HealthCheck from "./health-check";
+import GoTest from "./go-test";
+import { redirect } from "next/navigation";
 
 export default async function Dashboard() {
     const session = await auth();
-    const user = session?.user;
 
+    // If the session is not available or has an error, redirect to the homepage
+    if (!session || !session.user || session.error === "RefreshAccessTokenError") {
+      redirect("/");
+    }
 
-    console.log("Session:", session);
     return (
-        <div className="flex items-center justify-center h-screen">
-            {/* Implement SignOut */}
-            <button
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                onClick={async () => {
-                    "use server";
-                    await signOut({ redirect: true, redirectTo: "/" })}
-                }
-            >
-                Sign Out
-            </button>
-            
+      <div className="flex flex-col items-center justify-center min-h-screen w-full m-10 gap-4">
+        <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
+          <pre className="text-blue-500 w-full overflow-x-auto">
+            {JSON.stringify(session, null, 2)}
+          </pre>
         </div>
+
+        {session && <HealthCheck session={session}/>}
+        {session && <GoTest session={session} />}
+        <LogoutButton />
+      </div>
     );
 }
