@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Session } from "next-auth";
 import { Button } from "@/components/ui/button";
 
@@ -10,7 +10,7 @@ export default function GoTest({session}: {session: Session}) {
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(new Date().toLocaleString());
 
-  const testAPI = async () => {
+  const testAPI = useCallback(async () => {
     if (!session?.accessToken) {
       console.error("No access token available");
       return;
@@ -33,11 +33,11 @@ export default function GoTest({session}: {session: Session}) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session]);
 
   useEffect(() => {
     testAPI(); // Call the API when the component mounts
-  }, []);
+  }, [testAPI]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
