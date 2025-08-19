@@ -16,9 +16,11 @@ export const authConfig = {
       if (!isLoggedIn && !isOnHomepage) {
         return Response.redirect(new URL('/', nextUrl));
       }
+
       return true;
     },
     async jwt({ token, account, user}) {
+
       if (account && user) {
         const decoded = jwtDecode(account.access_token || "") as JwtPayload & {
           realm_access?: { roles: string[] };
@@ -29,8 +31,56 @@ export const authConfig = {
         token.refreshToken = account.refresh_token; 
         token.accessToken = account.access_token;
         token.idToken = account.id_token;
+        token.expiresAt = decoded.exp! * 1000;
+        return token;
       }
-      return token;
+      if (Date.now() < (token.expiresAt as number)) {
+        return token; // Token is still valid
+      }
+
+      // If the token is expired, refresh it
+      try {
+        const response = await fetch(`${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            'client_id': process.env.KEYCLOAK_ID!,
+            'client_secret': process.env.KEYCLOAK_SECRET!,
+            'grant_type': 'refresh_token',
+            'refresh_token': token.refreshToken as string,
+          }),
+        });
+
+        const refreshedToken = await response.json();
+        if (!response.ok) {
+          throw new Error(`Failed to refresh token: ${refreshedToken.error}`);
+        }
+        const decoded = jwtDecode(refreshedToken.access_token) as JwtPayload & {
+          realm_access?: { roles: string[] };
+          resource_access?: Record<string, { roles: string[] }>;
+        };
+
+        return {
+          ...token,
+          realmRoles: decoded.realm_access?.roles || [],
+          resourceRoles: decoded.resource_access || {},
+          refreshToken: refreshedToken.refresh_token,
+          accessToken: refreshedToken.access_token,
+          idToken: refreshedToken.id_token,
+          expiresAt: decoded.exp! * 1000,
+        };
+      } catch (error) {
+        console.error("Error refreshing token:", error);
+        return {
+          ...token,
+          error: "RefreshAccessTokenError",
+          accessToken: undefined,
+          refreshToken: undefined,
+          idToken: undefined,
+        };
+      }
     },
 
     async session({ session, token }) {
