@@ -167,6 +167,7 @@ export const authConfig = {
         console.log('Invalid token state, clearing session user');
         // Clear the user to make the session appear invalid
         session.user = {} as AdapterUser & User;
+        session.error = token.error as string;
         return session;
       }
 
