@@ -110,7 +110,7 @@ export const authConfig = {
       return true;
     },
     async jwt({ token, account, user }) {
-      // Initial sign in
+      // If this is the initial sign in, store the tokens
       if (account && user) {
         console.log('Initial sign in, storing tokens');
         const decoded = jwtDecode(account.access_token || "") as JwtPayload & {
@@ -151,29 +151,28 @@ export const authConfig = {
 
       // Return previous token if the access token has not expired yet
       // Add some buffer time (30 seconds) to refresh before actual expiration
-      if (Date.now() < ((token.expiresAt as number) - 30000)) {
+      if (Date.now() < ((token.expiresAt as number))) {
         return token;
       }
 
       console.log('Access token expired, attempting refresh...');
-      // Access token has expired, try to refresh it
       return refreshAccessToken(token);
     },
 
     async session({ session, token }) {
-      // If there's an error or no access token, the user should not have a valid session
-      // But we can't return null, so we'll modify the session to indicate it's invalid
+
+      // If the token has an error or no access token, clear the session user
+      // The middleware will redirect to the homepage if this happens
       if (token.error || !token.accessToken) {
         console.log('Invalid token state, clearing session user');
-        // Clear the user to make the session appear invalid
         session.user = {} as AdapterUser & User;
-        session.error = token.error as string;
+        session.error = token.error as ("RefreshAccessTokenError" | undefined);
         return session;
       }
 
       session.realmRoles = token.realmRoles as string[];
       session.resourceRoles = token.resourceRoles as Record<string, { roles: string[] }>;
-      session.refreshToken = token.refreshToken as string | undefined;
+      // session.refreshToken = token.refreshToken as string | undefined;
       session.accessToken = token.accessToken as string | undefined;
       session.idToken = token.idToken as string | undefined;
       return session;
