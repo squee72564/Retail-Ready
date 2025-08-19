@@ -59,6 +59,25 @@
   "output_encoding": "json",
   "endpoints": [
     {
+      "endpoint": "/v1/hello",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/hello",
+          "host": [
+            "http://go-microservice:8080"
+          ]
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "jwk_url": "http://keycloak:8080/realms/retail-ready/protocol/openid-connect/certs",
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
       "endpoint": "/v1/keycloak_protected",
       "backend": [
         {
