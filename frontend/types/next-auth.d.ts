@@ -7,7 +7,7 @@ declare module "next-auth" {
     idToken?: string;
     realmRoles: string[];
     resourceRoles: Record<string, { roles: string[] }>;
-    error?: string;
+    error?: "RefreshAccessTokenError";
   }
 }
 
@@ -20,6 +20,6 @@ declare module "next-auth/jwt" {
     idToken: string;
     expiresAt: number;
     refreshTokenExpiresAt?: number;
-    error?: string;
+    error?: "RefreshAccessTokenError";
   }
 }
