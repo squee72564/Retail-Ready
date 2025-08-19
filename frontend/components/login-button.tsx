@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { startKeycloakSession } from "@/app/dashboard/server-actions";
+import { startKeycloakSession } from "@/lib/keycloakSession";
 
 export default function LoginButton() {
   return (

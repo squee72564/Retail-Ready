@@ -1,3 +1,5 @@
+"use server";
+
 import { JWT } from '@auth/core/jwt';
 import { jwtDecode, JwtPayload } from "jwt-decode";
 

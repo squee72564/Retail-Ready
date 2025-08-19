@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { endKeycloakSession } from "@/app/dashboard/server-actions";
+import { endKeycloakSession } from "@/lib/keycloakSession";
 
 export default function LogoutButton() {
   return (
